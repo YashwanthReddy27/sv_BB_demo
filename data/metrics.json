@@ -1,0 +1,70 @@
+{
+  "_note": "Targets are SAMPLE ranges for the demo. Coach to confirm. Edit labels, targets and wording here; no code changes needed.",
+  "order": ["release_elbow_angle", "launch_angle", "release_height", "knee_bend", "set_point_elbow_angle", "dip_to_release", "arc_height", "follow_through_hold", "balance_drift"],
+  "headline": ["release_elbow_angle", "launch_angle", "knee_bend"],
+  "metrics": {
+    "release_elbow_angle": {
+      "label": "Elbow extension at release", "short": "Elbow extension", "unit": "°", "decimals": 0,
+      "target": [155, 180], "scale": [90, 180], "event": "release",
+      "why": "A fully extended shooting arm at release gives a straighter, more repeatable ball path.",
+      "drill": { "name": "One-hand form shooting", "reps": "[3 × 10 makes]", "cue": "Reach into the cookie jar: finish tall, elbow locked, wrist relaxed.", "diagram": "form" }
+    },
+    "launch_angle": {
+      "label": "Launch angle", "short": "Launch angle", "unit": "°", "decimals": 0,
+      "target": [45, 56], "scale": [30, 70], "event": "release",
+      "why": "A ball that leaves at 45–55° drops into a bigger window of the rim.",
+      "drill": { "name": "Arc ladder", "reps": "[5 spots × 5 shots]", "cue": "Shoot up and over a tall defender's hand, not at the rim.", "diagram": "arc" }
+    },
+    "release_height": {
+      "label": "Release height (above the head)", "short": "Release height", "unit": "× torso", "decimals": 2,
+      "target": [0.3, 0.9], "scale": [-0.3, 1.0], "event": "release",
+      "why": "A higher release is harder to contest and gives the ball a better angle into the rim.",
+      "drill": { "name": "Wall-line release", "reps": "[3 × 15 reps]", "cue": "Ball above the forehead before it leaves your fingers.", "diagram": "form" }
+    },
+    "knee_bend": {
+      "label": "Knee bend at the load", "short": "Knee bend", "unit": "°", "decimals": 0,
+      "target": [110, 140], "scale": [90, 180], "event": "dip",
+      "why": "Power comes from the legs. A consistent dip makes your range repeatable.",
+      "drill": { "name": "Dip-and-rise catch shooting", "reps": "[4 × 8 reps]", "cue": "Sit into the catch, rise in one motion.", "diagram": "catch" }
+    },
+    "set_point_elbow_angle": {
+      "label": "Elbow angle at set point", "short": "Set point", "unit": "°", "decimals": 0,
+      "target": [75, 110], "scale": [50, 170], "event": "set_point",
+      "why": "An L-shaped set point keeps the ball in the shooting pocket and the elbow under the ball.",
+      "drill": { "name": "Pocket-to-set holds", "reps": "[3 × 10 holds]", "cue": "Make an L. Hold one count, then shoot.", "diagram": "form" }
+    },
+    "dip_to_release": {
+      "label": "Dip to release", "short": "Dip to release", "unit": "s", "decimals": 2,
+      "target": [0.2, 0.6], "scale": [0, 1.2], "event": "dip",
+      "why": "One smooth motion from the legs to the fingertips. Long pauses leak power, rushing loses balance.",
+      "drill": { "name": "One-motion shooting", "reps": "[3 × 10 shots]", "cue": "Legs and arms finish together.", "diagram": "catch" }
+    },
+    "arc_height": {
+      "label": "Arc height (apex above release)", "short": "Arc height", "unit": "× torso", "decimals": 1,
+      "target": [2.0, 3.5], "scale": [0, 5], "event": "apex",
+      "why": "Enough arc to drop softly, but not so much that the shot loses accuracy and power.",
+      "drill": { "name": "Arc ladder", "reps": "[5 spots × 5 shots]", "cue": "Same apex every shot.", "diagram": "arc" }
+    },
+    "follow_through_hold": {
+      "label": "Follow-through hold", "short": "Follow-through", "unit": "s", "decimals": 1,
+      "target": [0.5, 4.0], "scale": [0, 4.5], "event": "follow_through",
+      "why": "Holding the follow-through until the ball lands builds a repeatable finish.",
+      "drill": { "name": "Freeze-the-finish", "reps": "[3 × 10 shots]", "cue": "Hold the gooseneck until the ball hits the floor.", "diagram": "form" }
+    },
+    "balance_drift": {
+      "label": "Balance drift (sideways hip movement)", "short": "Balance drift", "unit": "× torso", "decimals": 2,
+      "target": [0, 0.15], "scale": [0, 0.5], "event": "follow_through",
+      "why": "Landing where you took off means the shot went straight up through your body, not sideways.",
+      "drill": { "name": "Land-on-the-line", "reps": "[3 × 10 shots]", "cue": "Take off and land on the same spot. Feet wide, balanced.", "diagram": "footwork" }
+    }
+  },
+  "glossary": [
+    { "term": "Height", "text": "Height is a crucial factor in basketball, and it plays a significant role in determining a player's position. Centers and power forwards tend to be the tallest players on the team, while point guards and shooting guards are usually shorter." },
+    { "term": "Wingspan", "text": "A player's wingspan is the distance between the tips of their outstretched arms. A long wingspan can help a player block shots, steal passes, and get rebounds." },
+    { "term": "Weight", "text": "Weight is an essential factor in basketball because it affects a player's strength and ability to move on the court. A player's weight must be appropriate for their position and playing style." },
+    { "term": "Body fat percentage", "text": "A player's body fat percentage is an important measure of their fitness level. A low body fat percentage can help a player move more quickly and jump higher." },
+    { "term": "Speed", "text": "Speed is a critical factor in basketball because it affects a player's ability to move quickly on the court. A fast player can drive to the basket, get open for a shot, or steal the ball from an opponent." },
+    { "term": "Agility", "text": "Agility is the ability to change direction quickly and maintain balance while doing so. It's essential for dribbling, defending, and driving to the basket." },
+    { "term": "Strength", "text": "Strength is important in basketball because it helps players to control the ball, play defense, and battle for rebounds." }
+  ]
+}

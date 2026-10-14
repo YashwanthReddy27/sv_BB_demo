@@ -1,0 +1,63 @@
+/* My Feedback: athlete profile */
+.page-hero { padding: 88px 0 0; }
+.ath-name { margin-bottom: 40px; overflow-wrap: anywhere; }
+.hero-cta { margin-top: 28px; }
+.empty .lead { margin: 24px 0 32px; }
+
+.profile { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.profile .meta { margin-bottom: 10px; }
+.profile .pv { font-size: 18px; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.profile .focus .hand { color: var(--accent-ink); font-size: 27px; }
+
+/* monthly review */
+.review { padding: 40px; }
+.review-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px 24px; flex-wrap: wrap; margin-bottom: 36px; }
+.review-head .meta { color: #A3A6AC; }
+.review-grid { margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--dark-border); border: 1px solid var(--dark-border); border-radius: 14px; overflow: hidden; }
+.review-grid > div { background: var(--dark-2); padding: 24px; display: grid; align-content: start; gap: 10px; min-width: 0; }
+.review-grid dt { font: 500 12px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: #A3A6AC; }
+.review-grid dd { margin: 0; display: grid; gap: 6px; }
+.review .big { font-size: 56px; font-weight: 600; letter-spacing: var(--track); line-height: 1; }
+.review .big small { font-size: 28px; color: #A3A6AC; letter-spacing: -0.02em; }
+.review .mid { font-size: 24px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.15; }
+.review .was { font: 400 13px/1.4 var(--mono); color: #C9CBD0; }
+
+/* charts */
+.chart-card { display: grid; gap: 16px; align-content: start; }
+.chart-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.chart-head .meta { margin-top: 6px; }
+.chart-now { display: grid; justify-items: end; gap: 6px; text-align: right; }
+.chart-val { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.progress-chart { width: 100%; height: auto; }
+.chart-why { font-size: 15px; }
+
+/* reports table */
+.reports td { font-size: 16px; }
+.reports .row-link { font-weight: 500; text-decoration: none; }
+.reports .row-link:hover { color: var(--accent-ink); text-decoration: underline; }
+.reports .ontarget { display: inline-flex; align-items: center; gap: 8px; font: 500 14px var(--mono); }
+.reports .go { text-align: right; }
+.reports tbody tr:hover { background: #FBFAF7; }
+
+@media (max-width: 960px) {
+  .profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .charts { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .page-hero { padding-top: 56px; }
+  .profile { grid-template-columns: 1fr; }
+  .review { padding: 24px; }
+  .review-grid { grid-template-columns: 1fr; }
+  .charts { grid-template-columns: 1fr; }
+  /* stacked table rows on phones: no sideways scroll */
+  .reports { overflow: visible; }
+  .reports thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .reports table, .reports tbody, .reports tr, .reports td { display: block; }
+  .reports tr { padding: 16px 20px; border-bottom: 1px solid var(--hairline); }
+  .reports tr:last-child { border-bottom: 0; }
+  .reports td { border: 0; padding: 4px 0; display: flex; justify-content: space-between; gap: 16px; text-align: right; }
+  .reports td::before { content: attr(data-label); font: 500 12px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--label); text-align: left; }
+  .reports td.go { justify-content: flex-start; }
+}
+h1 .ph, h2 .ph { font-family: inherit; font-size: inherit; padding: 0 .08em; border-radius: .1em; }

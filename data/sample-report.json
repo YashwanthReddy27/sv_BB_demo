@@ -1,0 +1,56 @@
+{
+  "_note": "SAMPLE data. Metric values come from /data/derived-metrics.json (tools/derive_metrics.py over the existing analysis cache). Written feedback, injury risk and training plan are the existing app text.",
+  "athlete": {
+    "id": "demo",
+    "name": "[Athlete name]",
+    "level": "High School",
+    "program": "Private",
+    "pass": "[Membership: Committed, 3 sessions / week]",
+    "focus": "Elbow extension and a consistent release",
+    "coach": "[Coach name]"
+  },
+  "sessions": [
+    { "id": "f1", "clip": "1 Failed", "date": "2026-09-24", "program": "Private", "level": "High School", "coach": "[Coach name]",
+      "video": "/media/1-failed.mp4", "analysis": "/media/1-failed-analysis.mp4", "poster": "/img/1-failed-poster.jpg", "pose": "/media/1-failed-pose.csv",
+      "summary": "A missed jump shot. The release came out flat-armed and low, and the follow-through dropped straight away. Extending through the ball is the first fix." },
+    { "id": "s1", "clip": "1 Success", "date": "2026-10-01", "program": "Private", "level": "High School", "coach": "[Coach name]",
+      "video": "/media/1-success.mp4", "analysis": "/media/1-success-analysis.mp4", "poster": "/img/1-success-poster.jpg", "pose": "/media/1-success-pose.csv",
+      "summary": "A made shot with a high, balanced release and a held follow-through. The arm still finishes bent, so the next gain is full elbow extension." },
+    { "id": "s2", "clip": "2 Success", "date": "2026-10-08", "program": "Private", "level": "High School", "coach": "[Coach name]",
+      "video": "/media/2-success.mp4", "analysis": "/media/2-success-analysis.mp4", "poster": "/img/2-success-poster.jpg", "pose": "/media/2-success-pose.csv",
+      "summary": "A made pull-up jumper off the dribble with full elbow extension and a good launch angle. The set point sits high and the shot drifts sideways on landing." }
+  ],
+  "tracking": [
+    { "title": "Ball tracking and trajectory analysis", "src": "/media/ball-tracking-trajectory-analysis.mp4" },
+    { "title": "Player tracking and analysis", "src": "/media/player-tracking-analysis.mp4" }
+  ],
+  "feedback": [
+    { "title": "Consistency", "text": "The player's movements appear to be relatively consistent, which is a good sign. Consistency in movement is important for developing muscle memory and improving overall technique." },
+    { "title": "Posture", "text": "The player's posture seems to be generally upright and balanced, which is important for maintaining control and stability while moving and performing basketball skills. However, it is hard to determine if the player's posture is optimal without more information about the task or objective." },
+    { "title": "Footwork", "text": "The player's footwork appears to be decent but could be improved. The player should focus on keeping their feet wide and maintaining good balance while moving and performing basketball skills." },
+    { "title": "Hand and arm movement", "text": "Based on the data provided, it is hard to provide feedback on the player's hand and arm movement. However, it is important to keep the arms and hands relaxed while dribbling or shooting and to follow through with the shot." }
+  ],
+  "injuryRisk": [
+    { "title": "Ankle", "text": "The athlete has a history of ankle sprains, and the biomechanical analysis suggests a limited range of motion and potential instability in the ankle joint. This may increase the risk of ankle sprains or other ankle injuries." },
+    { "title": "Knee", "text": "The biomechanical analysis suggests that the athlete may have a valgus (knock-knee) alignment during landing, which can increase the stress on the knee joint and potentially lead to knee injuries such as ACL or MCL tears." },
+    { "title": "Hip", "text": "The athlete has a limited range of motion in the hip joint, which may lead to compensations and increased stress on other areas of the body such as the lower back." },
+    { "title": "Lower back", "text": "The biomechanical analysis suggests that the athlete may have a tendency to overuse the lower back muscles during certain movements, which can increase the risk of lower back injuries such as strains or disc herniations." }
+  ],
+  "trainingPlan": [
+    "Warm-up: 10-15 minutes of jogging, skipping, or cycling to increase blood flow and loosen up muscles.",
+    "Plyometrics: This type of training helps improve explosive power and speed. Here are some exercises the player can perform:",
+    "Jump squats: Stand with feet shoulder-width apart, lower into a squat, and then jump as high as possible. Repeat for 3 sets of 10 reps.",
+    "Box jumps: Stand in front of a sturdy box or platform, and then jump up onto it, landing softly. Repeat for 3 sets of 10 reps.",
+    "Bounds: Starting in a lunge position, jump forward as far as possible, landing on the front foot. Repeat for 3 sets of 10 reps on each leg.",
+    "Sprints: This type of training will help improve the player's acceleration and overall speed. Here are some exercises the player can perform:",
+    "30-meter sprints: Sprint at maximum effort for 30 meters, rest for 30 seconds, and repeat for 6-8 sets.",
+    "Shuttle runs: Set up 2 cones 10 meters apart. Sprint from one cone to the other, touch the ground, and sprint back. Repeat for 6-8 sets.",
+    "Hill sprints: Find a steep hill and sprint up it as fast as possible. Walk down to recover and repeat for 6-8 sets.",
+    "Strength training: This type of training will help the player build overall strength and power, which will translate into improved speed on the court. Here are some exercises the player can perform:",
+    "Deadlifts: 3 sets of 8 reps",
+    "Squats: 3 sets of 8 reps",
+    "Lunges: 3 sets of 8 reps on each leg",
+    "Calf raises: 3 sets of 12 reps",
+    "Cool-down: 5-10 minutes of light jogging or cycling, followed by stretching to help prevent muscle soreness and injury."
+  ]
+}

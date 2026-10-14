@@ -1,0 +1,4 @@
+data/submissions.json
+__pycache__/
+.vercel
+legacy/

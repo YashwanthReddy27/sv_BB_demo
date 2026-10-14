@@ -1,0 +1,43 @@
+/* SportsVision theme tokens. Every colour, font and size used on the site comes from here. */
+
+:root {
+  --paper: #F7F6F2;
+  --white: #FFFFFF;
+  --ink: #0E0F11;
+  --ink-2: #4A4E55;
+  --label: #7A7E85;
+  --hairline: #E3E1DA;
+  --muted: #ECEAE3;
+  --btn-border: #DAD8D0;
+  --dark: #0E0F11;
+  --dark-2: #17191D;
+  --dark-border: #2A2D33;
+  --accent: #FF5A1F;
+  --accent-ink: #C7400F;      /* accent used as small text on light, 4.5:1 */
+  --good: #1F8A4C;
+  --bad: #B4232A;
+
+  --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --serif: "Instrument Serif", Georgia, serif;
+  --hand: "Caveat", "Comic Sans MS", cursive;
+
+  --h1: clamp(46px, 7.4vw, 104px);
+  --h2: clamp(36px, 4.4vw, 58px);
+  --h3: 22px;
+  --track: -0.045em;
+
+  --max: 1240px;
+  --gutter: 24px;
+  --section: 120px;
+  --radius: 20px;
+  --radius-btn: 12px;
+
+  --rise: 16px;
+  --dur: 500ms;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+
+@media (max-width: 720px) {
+  :root { --section: 80px; --gutter: 16px; }
+}

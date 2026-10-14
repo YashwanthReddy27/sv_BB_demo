@@ -1,0 +1,329 @@
+/* SportsVision reusable components: synced compare player, 3D pose charts, cards.
+   Everything is scoped under .sv-root and themed through the --sv-* tokens below,
+   so a host site can restyle by overriding the tokens. */
+
+.sv-root {
+  color-scheme: light;
+  --sv-brand: #ff4500;
+  --sv-brand-2: #000080;
+  --sv-page: #f9f9f7;
+  --sv-surface: #fcfcfb;
+  --sv-text: #0b0b0b;
+  --sv-text-2: #52514e;
+  --sv-muted: #898781;
+  --sv-grid: #e1e0d9;
+  --sv-axis: #c3c2b7;
+  --sv-border: rgba(11, 11, 11, 0.1);
+  --sv-left: #2a78d6;
+  --sv-right: #eb6834;
+  --sv-radius: 12px;
+  --sv-gap: 16px;
+
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--sv-text);
+  line-height: 1.5;
+}
+
+/* Dark values apply when the host page is in dark mode: <html class="dark">
+   (shadcn / Lovable) or <html data-theme="dark">. */
+:root.dark .sv-root,
+:root[data-theme="dark"] .sv-root {
+  color-scheme: dark;
+  --sv-brand: #ff6a33;
+  --sv-brand-2: #9db4ff;
+  --sv-page: #0d0d0d;
+  --sv-surface: #1a1a19;
+  --sv-text: #ffffff;
+  --sv-text-2: #c3c2b7;
+  --sv-grid: #2c2c2a;
+  --sv-axis: #383835;
+  --sv-border: rgba(255, 255, 255, 0.1);
+  --sv-left: #3987e5;
+  --sv-right: #d95926;
+}
+
+.sv-root *,
+.sv-root *::before,
+.sv-root *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- cards & layout ---------- */
+
+.sv-card {
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--sv-radius);
+  padding: var(--sv-gap);
+  min-width: 0;
+}
+
+.sv-card-title {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sv-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sv-gap);
+}
+
+.sv-stack {
+  display: grid;
+  gap: var(--sv-gap);
+}
+
+.sv-section-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.sv-video {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+}
+
+/* ---------- tabs ---------- */
+
+.sv-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 999px;
+}
+
+.sv-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: transparent;
+  color: var(--sv-text-2);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.sv-tab:hover {
+  color: var(--sv-text);
+}
+
+.sv-tab[aria-selected="true"] {
+  background: var(--sv-brand);
+  color: #fff;
+}
+
+.sv-tab:focus-visible,
+.sv-btn:focus-visible,
+.sv-select:focus-visible,
+.sv-scrub:focus-visible {
+  outline: 2px solid var(--sv-left);
+  outline-offset: 2px;
+}
+
+/* ---------- synced compare player ---------- */
+
+.sv-compare-screens {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sv-compare-screen {
+  position: relative;
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+.sv-compare-screen video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sv-compare-screen figcaption {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sv-compare-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  color: #fff;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.sv-compare-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.sv-btn {
+  appearance: none;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sv-brand);
+  color: #fff;
+  cursor: pointer;
+}
+
+.sv-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.sv-scrub {
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--sv-brand);
+  cursor: pointer;
+}
+
+.sv-time {
+  flex: none;
+  color: var(--sv-text-2);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-select {
+  flex: none;
+  padding: 6px 8px;
+  border: 1px solid var(--sv-border);
+  border-radius: 8px;
+  background: var(--sv-surface);
+  color: var(--sv-text);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.sv-check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sv-text-2);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.sv-check input {
+  accent-color: var(--sv-brand);
+}
+
+/* ---------- pose charts ---------- */
+
+.sv-chart-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sv-swatch {
+  flex: none;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.sv-chart-sub {
+  margin: 0 0 8px;
+  color: var(--sv-muted);
+  font-size: 0.8rem;
+}
+
+.sv-chart-plot {
+  width: 100%;
+  height: 380px;
+}
+
+.sv-chart-msg {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--sv-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* ---------- text content ---------- */
+
+.sv-prose ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+.sv-prose li + li,
+.sv-prose p + p {
+  margin-top: 8px;
+}
+
+.sv-prose p {
+  margin: 0;
+}
+
+.sv-prose {
+  color: var(--sv-text-2);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 760px) {
+  .sv-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sv-compare-controls {
+    flex-wrap: wrap;
+  }
+  .sv-scrub {
+    flex-basis: 100%;
+    order: 5;
+  }
+  .sv-chart-plot {
+    height: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sv-compare-screens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

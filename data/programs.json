@@ -1,0 +1,51 @@
+{
+  "levels": [
+    { "key": "youth", "name": "Youth", "ages": "[Ages 7–10]", "blurb": "[Fundamentals, footwork, love of the game]" },
+    { "key": "middle", "name": "Middle School", "ages": "[Ages 11–13]", "blurb": "[Shooting form, ball handling, reading the floor]" },
+    { "key": "high", "name": "High School", "ages": "[Ages 14–18]", "blurb": "[Game-speed reps, finishing, decision making]" },
+    { "key": "college", "name": "College", "ages": "[18+]", "blurb": "[Position-specific work, off-season development]" },
+    { "key": "adult", "name": "Adult", "ages": "[18+]", "blurb": "[Skill work and conditioning for rec and league players]" }
+  ],
+  "programs": [
+    { "key": "small-group", "show": true, "name": "Small Group", "title": "Small group, *big* reps",
+      "description": "[2–3 sentence description of small group training: group size, coach-to-athlete ratio and what a session looks like.]",
+      "short": "[Two-line description of small group sessions for the home page card.]",
+      "duration": "[55 min]", "groupSize": "[4–8 athletes]", "ages": "[Ages 8–18]",
+      "booking": ["Single session", "5-pack", "10-pack", "Membership"],
+      "onFilm": ["Shot release: elbow extension and release height", "Lift: knee bend and dip-to-release timing", "Ball flight: launch angle and arc", "Balance and follow-through"],
+      "visual": "shooting" },
+    { "key": "private", "show": true, "name": "Private", "title": "One coach. *One* athlete.",
+      "description": "[2–3 sentence description of 1-on-1 private training.]",
+      "short": "[Two-line description of private sessions for the home page card.]",
+      "duration": "[55 min]", "groupSize": "1 athlete", "ages": "[All ages]",
+      "booking": ["Single session", "5-pack", "10-pack", "Membership"],
+      "onFilm": ["Every shot tracked and charted", "Joint paths: shoulder, elbow, wrist (left and right)", "Made vs missed comparison", "Personal drill plan for next session"],
+      "visual": "photo" },
+    { "key": "memberships", "show": true, "name": "Memberships", "title": "Train every week, *track* every month" },
+    { "key": "shooting-machine", "show": true, "name": "Shooting Machine", "title": "Hundreds of shots, *every* one counted",
+      "description": "[2–3 sentence description of shooting machine sessions.]",
+      "duration": "[30 or 60 min]", "groupSize": "[1–2 athletes]", "ages": "[Ages 10+]",
+      "booking": ["Single session", "5-pack", "10-pack", "Membership"],
+      "onFilm": ["Ball trajectory and predicted flight", "Makes, attempts and accuracy", "Shot chart by court position"],
+      "visual": "machine" },
+    { "key": "camps", "show": true, "name": "Camps & Clinics", "title": "Seasonal camps & *clinics*" },
+    { "key": "team", "show": true, "name": "Team Training", "title": "Your team, *on film*",
+      "description": "[2–3 sentence description of team training for clubs and school programs.]",
+      "short": "[Two-line description of team training for the home page card.]",
+      "duration": "[90 min]", "groupSize": "[Full roster]", "ages": "[Middle school to college]",
+      "booking": ["Single session", "Season package"],
+      "onFilm": ["Player and ball tracking for every possession", "Shot chart, score, shots and accuracy", "An individual feedback report per player"],
+      "visual": "team" },
+    { "key": "performance", "show": true, "name": "Sports Performance", "title": "Stronger, faster, *safer*",
+      "description": "[2–3 sentence description of strength, speed and conditioning.]",
+      "duration": "[55 min]", "groupSize": "[4–10 athletes]", "ages": "[Ages 12+]",
+      "booking": ["Single session", "5-pack", "10-pack", "Membership"],
+      "onFilm": ["Landing mechanics and knee alignment", "Range of motion: ankle and hip", "Load and movement watch-outs"],
+      "visual": "performance" }
+  ],
+  "camps": [
+    { "title": "[Fall Shooting Clinic]", "dates": "[Oct 20 – Oct 24]", "ages": "[Ages 10–14]", "price": "[$000]", "spotsLeft": 6, "href": "/pages/schedule.html?program=camps" },
+    { "title": "[Holiday Skills Camp]", "dates": "[Dec 22 – Dec 30]", "ages": "[Ages 8–16]", "price": "[$000]", "spotsLeft": 2, "href": "/pages/schedule.html?program=camps" },
+    { "title": "[Spring Break Guard Clinic]", "dates": "[Mar 23 – Mar 27]", "ages": "[Ages 12–18]", "price": "[$000]", "spotsLeft": 14, "href": "/pages/schedule.html?program=camps" }
+  ]
+}
