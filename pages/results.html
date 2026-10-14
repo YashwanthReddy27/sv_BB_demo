@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results · SportsVision.AI</title>
+<link rel="stylesheet" href="../sportsvision/sportsvision.css">
+<link rel="stylesheet" href="../theme.css">
+<style>
+  .drill { display: grid; gap: 6px; padding: 18px 0; border-top: 1px solid var(--hairline); }
+  .drill:first-of-type { border-top: 0; padding-top: 0; }
+  .cue { font-weight: 500; }
+  .metric-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; }
+  .chart-card h3 { margin-bottom: 4px; }
+  .since td:first-child { font-weight: 500; }
+</style>
+</head>
+<body>
+<main class="page-main sv-root" id="main">
+  <div id="state"></div>
+  <div id="result" hidden style="display:grid;gap:40px">
+    <header>
+      <p class="label" id="r-kind">Results</p>
+      <h1 class="title" id="r-athlete"></h1>
+      <div class="tags" id="r-tags" style="margin-top:18px"></div>
+      <div class="btn-row" id="r-actions" style="margin-top:24px">
+        <button class="btn btn-primary" type="button" id="share">Share</button>
+        <a class="btn btn-secondary" id="history-link" href="history.html">Athlete history</a>
+      </div>
+    </header>
+
+    <section class="sv-stack" aria-labelledby="out-h">
+      <h2 class="sv-section-title" id="out-h">Shot Analysis</h2>
+      <div id="shot-analysis"></div>
+    </section>
+
+    <section class="sv-grid-2" id="feedback-cards"></section>
+
+    <section aria-labelledby="since-h" id="since-section" hidden>
+      <div class="card">
+        <div class="card-head"><h2 class="h2" id="since-h">Since last time</h2><span class="label" id="since-sub"></span></div>
+        <div class="table-wrap"><table class="since">
+          <thead><tr><th scope="col">Metric</th><th scope="col">Last time</th><th scope="col">This session</th><th scope="col">Change</th></tr></thead>
+          <tbody id="since-rows"></tbody></table></div>
+      </div>
+      <div class="grid-3" id="charts" style="margin-top:24px"></div>
+    </section>
+
+    <section class="card" aria-labelledby="work-h">
+      <div class="card-head"><h2 class="h2" id="work-h">Work on this</h2><span class="tag accent">TODO: coach to review</span></div>
+      <div class="grid-2" id="drills"></div>
+    </section>
+
+    <section class="card" aria-labelledby="notes-h">
+      <h2 class="h2" id="notes-h" style="margin-bottom:16px">Coach notes</h2>
+      <label class="sr-only" for="notes">Coach notes</label>
+      <textarea class="input" id="notes" placeholder="Notes for the athlete and parents"></textarea>
+      <p class="label" id="notes-status" style="margin-top:10px"></p>
+    </section>
+  </div>
+</main>
+<script type="module">
+  import { shotAnalysis } from '../sportsvision/sportsvision.js';
+  import { nav, $, esc, json, params, SHOTS, results, keyMetrics, shareLink, fromShare, toast, fmtDate, lineChart } from '../app.js';
+  nav();
+
+  const shared = params.get('view') ? fromShare(params.get('view')) : null;
+  const r = shared || results.get(params.get('id'));
+  if (!r || !SHOTS[r.shot]) {
+    $('#state').innerHTML = `<div class="card empty"><h1 class="h2">No result found</h1><p style="margin:12px 0 20px">This link may be old, or the result was saved in another browser.</p><a class="btn btn-primary" href="upload.html">Upload a session</a></div>`;
+  } else {
+    $('#result').hidden = false;
+    document.title = `${r.athlete} · Results · SportsVision.AI`;
+    $('#r-kind').textContent = shared ? 'Results · read-only' : 'Results';
+    $('#r-athlete').textContent = r.athlete;
+    $('#r-tags').innerHTML = [fmtDate(r.date), r.level, r.type, SHOTS[r.shot].label].map((t, i) => `<span class="tag${i === 2 ? ' accent' : ''}">${esc(t)}</span>`).join('');
+    $('#history-link').href = `history.html?athlete=${encodeURIComponent(r.athlete)}`;
+    if (shared) $('#r-actions').hidden = true;
+
+    // the existing analysis output for this clip
+    shotAnalysis($('#shot-analysis'), { shots: [SHOTS[r.shot]] });
+
+    // the existing written feedback + injury risk cards, taken from the analysis page as-is
+    const doc = new DOMParser().parseFromString(await (await fetch('index.html')).text(), 'text/html');
+    const cards = [...doc.querySelectorAll('.sv-card')].filter((c) => /Injury Risk|Personalized Feedback/.test(c.querySelector('.sv-card-title')?.textContent || ''));
+    $('#feedback-cards').innerHTML = cards.map((c) => c.outerHTML).join('');
+
+    // since last time
+    const history = results.byAthlete(r.athlete).filter((x) => !shared || x.id !== r.id);
+    const idx = shared ? -1 : history.findIndex((x) => x.id === r.id);
+    const earlier = shared ? [] : history.slice(0, idx);
+    if (earlier.length) {
+      const prev = earlier[earlier.length - 1];
+      const [now, before] = await Promise.all([keyMetrics(r.shot), keyMetrics(prev.shot)]);
+      $('#since-sub').textContent = `vs ${fmtDate(prev.date)} · ${prev.type}`;
+      $('#since-rows').innerHTML = now.map((m, i) => {
+        const d = m.value - before[i].value;
+        const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'same';
+        const txt = d > 0 ? `↑ +${d} ${m.unit}` : d < 0 ? `↓ ${d} ${m.unit}` : '= same';
+        return `<tr><td>${esc(m.label)}</td><td class="num">${before[i].value} ${m.unit}</td><td class="num">${m.value} ${m.unit}</td><td><span class="trend ${cls}">${txt}</span></td></tr>`;
+      }).join('');
+      const series = await Promise.all(history.slice(0, idx + 1).map(async (x) => ({ d: x.date, m: await keyMetrics(x.shot) })));
+      $('#charts').innerHTML = now.map((m, i) => `<figure class="card chart-card" style="margin:0"><h3 class="h3">${esc(m.label)}</h3>
+        <p class="label" style="margin-bottom:10px">${series.length} sessions · ${m.unit}</p>${lineChart(series.map((s) => ({ d: s.d, v: s.m[i].value })), m.unit)}</figure>`).join('');
+      $('#since-section').hidden = false;
+    }
+
+    // work on this: drills for each issue the analysis names
+    const { issues } = await json('../drills.json');
+    $('#drills').innerHTML = Object.values(issues).map((iss) => `<div><h3 class="h3" style="margin-bottom:12px">${esc(iss.title)}</h3>
+      ${iss.drills.slice(0, 2).map((d) => `<div class="drill"><p style="margin:0;font-weight:600">${esc(d.name)}</p>
+        <p class="muted" style="margin:0">${esc(d.howto)}</p><p class="cue" style="margin:0">“${esc(d.cue)}”</p>
+        <p class="label" style="margin:0">Reps: <span class="num">${esc(d.reps)}</span></p></div>`).join('')}</div>`).join('');
+
+    // coach notes + share
+    const notes = $('#notes');
+    notes.value = r.notes || '';
+    if (shared) { notes.readOnly = true; if (!r.notes) notes.closest('section').hidden = true; }
+    else {
+      let t;
+      notes.addEventListener('input', () => {
+        clearTimeout(t);
+        t = setTimeout(() => { results.save({ ...r, notes: notes.value }); r.notes = notes.value; $('#notes-status').textContent = 'Saved'; }, 400);
+      });
+      $('#share').addEventListener('click', async () => {
+        const url = shareLink({ ...r, notes: notes.value });
+        try { await navigator.clipboard.writeText(url); toast('Read-only link copied'); } catch { prompt('Copy this link', url); }
+      });
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,8 +1,0 @@
-{
-  "bar": { "text": "[Fall clinic] registration is open", "href": "/pages/training.html#camps" },
-  "featured": [
-    { "title": "[Fall Shooting Clinic]", "dates": "[Oct 20 – Oct 24]", "ages": "[Ages 10–14]", "href": "/pages/schedule.html?program=camps" },
-    { "title": "[Holiday Skills Camp]", "dates": "[Dec 22 – Dec 30]", "ages": "[Ages 8–16]", "href": "/pages/schedule.html?program=camps" },
-    { "title": "[Academy evaluation day]", "dates": "[Nov 2]", "ages": "[Ages 10–18]", "href": "/pages/academy.html" }
-  ]
-}

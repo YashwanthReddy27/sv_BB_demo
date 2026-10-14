@@ -1,21 +1,94 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upload a session · Film-based basketball training</title>
-<meta name="description" content="Coach tool: upload a session clip and get a full shooting analysis report.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/components.css">
-<link rel="stylesheet" href="/css/pages/upload.css">
-<script type="module" src="/js/pages/upload.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload · SportsVision.AI</title>
+<link rel="stylesheet" href="../sportsvision/sportsvision.css">
+<link rel="stylesheet" href="../theme.css">
 </head>
-<body data-no-popup>
-<main id="main">
-  <div id="upload-root"></div>
+<body>
+<main class="page-main" id="main">
+  <header>
+    <p class="label">Upload film</p>
+    <h1 class="title">Analyse a session</h1>
+    <p class="lead">Add the clip, the athlete and the session details, then run the analysis.</p>
+  </header>
+
+  <form class="card" id="upload-form" novalidate>
+    <div class="form-grid">
+      <div class="field span-2">
+        <span class="flabel" id="clip-label">Session video</span>
+        <label class="dropzone" id="drop" aria-labelledby="clip-label">
+          <input type="file" id="file" accept=".mp4,.mov,.avi,video/*">
+          <strong>Drag a clip here, or browse files</strong>
+          <span class="label">MP4 · MOV · AVI</span>
+          <span id="file-name" class="muted"></span>
+        </label>
+      </div>
+      <div class="field span-2">
+        <label for="shot">Analysed clip</label>
+        <select class="input" id="shot"></select>
+        <p class="notice">This demo uses the clips the analysis has already processed. Pick the one that matches this session.</p>
+      </div>
+      <div class="field">
+        <label for="athlete">Athlete name</label>
+        <input class="input" id="athlete" autocomplete="name" required>
+        <span class="err" id="athlete-err" hidden>Enter the athlete's name.</span>
+      </div>
+      <div class="field">
+        <label for="date">Session date</label>
+        <input class="input" id="date" type="date" required>
+      </div>
+      <div class="field">
+        <label for="level">Skill level</label>
+        <select class="input" id="level"></select>
+      </div>
+      <div class="field">
+        <span class="flabel" id="type-label">Session type</span>
+        <div class="seg" role="radiogroup" aria-labelledby="type-label" id="type"></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:28px">
+      <button class="btn btn-primary" type="submit">Analyse</button>
+      <a class="btn btn-secondary" href="index.html">Cancel</a>
+    </div>
+  </form>
 </main>
+<script type="module">
+  import { nav, $, esc, json, params, SHOTS, SESSION_TYPES, results, sessions, uid } from '../app.js';
+  nav();
+  const { levels } = await json('../levels.json');
+  const linked = params.get('session') ? sessions.get(params.get('session')) : null;
+  const pre = { level: params.get('level') || linked?.level, type: params.get('type') || linked?.type };
+
+  $('#shot').innerHTML = Object.entries(SHOTS).map(([k, s]) => `<option value="${k}">${esc(s.label)}</option>`).join('');
+  $('#level').innerHTML = levels.map((l) => `<option${l === pre.level ? ' selected' : ''}>${esc(l)}</option>`).join('');
+  $('#type').innerHTML = SESSION_TYPES.map((t, i) => `<label><input type="radio" name="type" value="${esc(t)}"${(pre.type ? t === pre.type : i === 0) ? ' checked' : ''}><span>${esc(t)}</span></label>`).join('');
+  $('#date').value = linked?.date || new Date().toISOString().slice(0, 10);
+  if (linked) $('#athlete').focus();
+
+  const drop = $('#drop'), file = $('#file');
+  const showFile = () => { $('#file-name').textContent = file.files[0] ? file.files[0].name : ''; };
+  file.addEventListener('change', showFile);
+  ['dragenter', 'dragover'].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach((e) => drop.addEventListener(e, () => drop.classList.remove('over')));
+  drop.addEventListener('drop', (ev) => { ev.preventDefault(); if (ev.dataTransfer.files.length) { file.files = ev.dataTransfer.files; showFile(); } });
+
+  $('#upload-form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const athlete = $('#athlete').value.trim();
+    $('#athlete-err').hidden = !!athlete;
+    $('#athlete').setAttribute('aria-invalid', !athlete);
+    if (!athlete) { $('#athlete').focus(); return; }
+    const r = {
+      id: uid(), created: Date.now(), athlete, date: $('#date').value, level: $('#level').value,
+      type: document.querySelector('input[name=type]:checked').value, shot: $('#shot').value,
+      fileName: file.files[0]?.name || '', notes: '', sessionId: linked?.id || '',
+    };
+    results.save(r);
+    if (linked) sessions.save({ ...linked, resultId: r.id });
+    location.href = `results.html?id=${r.id}`;
+  });
+</script>
 </body>
 </html>

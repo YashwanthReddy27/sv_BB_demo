@@ -1,8 +1,0 @@
-{
-  "apiMode": "demo",
-  "apiBase": "",
-  "formWebhook": "",
-  "externalBooking": false,
-  "popupDelayMs": 6000,
-  "upload": { "formats": [".mp4", ".mov", ".avi"], "maxMb": 200 }
-}

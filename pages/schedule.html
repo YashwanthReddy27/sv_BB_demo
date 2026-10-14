@@ -1,40 +1,102 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Train With Us · Schedule</title>
-<meta name="description" content="Find and book a session by program, age group, coach and day. Every session is filmed, and every athlete gets a feedback report.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600&family=Instrument+Serif:ital@1&display=swap">
-<link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/components.css">
-<link rel="stylesheet" href="/css/pages/schedule.css">
-<script type="module" src="/js/pages/schedule.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule · SportsVision.AI</title>
+<link rel="stylesheet" href="../sportsvision/sportsvision.css">
+<link rel="stylesheet" href="../theme.css">
+<style>
+  .session { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 20px; align-items: start; padding: 20px 0; border-top: 1px solid var(--hairline); }
+  .session:first-child { border-top: 0; padding-top: 0; }
+  .session .when { font-family: var(--mono); font-size: 14px; }
+  .session .when strong { display: block; font-family: var(--font); font-size: 17px; letter-spacing: -0.01em; }
+  .session .acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  @media (max-width: 760px) { .session { grid-template-columns: 1fr; gap: 10px; } .session .acts { justify-content: flex-start; } }
+  dialog { border: 0; border-radius: 20px; padding: 0; width: min(600px, calc(100vw - 32px)); }
+  dialog::backdrop { background: rgba(14, 15, 17, .5); }
+</style>
 </head>
-<body data-no-popup>
-<main id="main">
-  <header class="sc-hero wrap">
-    <span class="label">Schedule</span>
-    <h1>Book your next <em class="s">session.</em></h1>
-    <p class="lead">Filter by program, age group, coach or day. Every session is filmed, and a feedback report follows it.</p>
+<body>
+<main class="page-main" id="main">
+  <header style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+    <div><p class="label">Training schedule</p><h1 class="title">Schedule</h1></div>
+    <button class="btn btn-primary" type="button" id="add">Add session</button>
   </header>
-
-  <section class="sc-body wrap" aria-label="Session schedule">
-    <div class="sc-filters card" id="filters"></div>
-
-    <div class="sc-bar">
-      <p class="sc-count" id="count" role="status" aria-live="polite"></p>
-      <div class="sc-views" role="tablist" aria-label="Schedule view">
-        <button class="chip" type="button" role="tab" id="tab-list" aria-controls="panel-list" aria-selected="true">List</button>
-        <button class="chip" type="button" role="tab" id="tab-week" aria-controls="panel-week" aria-selected="false" tabindex="-1">Week</button>
-      </div>
-    </div>
-
-    <div id="panel-list" role="tabpanel" aria-labelledby="tab-list" tabindex="0"></div>
-    <div id="panel-week" role="tabpanel" aria-labelledby="tab-week" tabindex="0" hidden></div>
-  </section>
+  <section class="card" aria-label="Upcoming sessions"><div id="list"></div></section>
 </main>
+
+<dialog id="dlg" aria-labelledby="dlg-h">
+  <form method="dialog" class="card" id="form" style="border:0" novalidate>
+    <h2 class="h2" id="dlg-h" style="margin-bottom:20px">Add session</h2>
+    <div class="form-grid">
+      <div class="field"><label for="f-date">Date</label><input class="input" type="date" id="f-date" required></div>
+      <div class="field"><label for="f-time">Time</label><input class="input" type="time" id="f-time" required></div>
+      <div class="field"><label for="f-type">Session type</label><select class="input" id="f-type"></select></div>
+      <div class="field"><label for="f-level">Level</label><select class="input" id="f-level"></select></div>
+      <div class="field span-2"><label for="f-focus">Focus skill</label><input class="input" id="f-focus" placeholder="e.g. Footwork"></div>
+      <div class="field span-2"><label for="f-notes">Notes</label><textarea class="input" id="f-notes" style="min-height:90px"></textarea></div>
+    </div>
+    <p class="err" id="f-err" hidden style="margin-top:12px">Add a date and time.</p>
+    <div class="btn-row" style="margin-top:24px">
+      <button class="btn btn-primary" value="save" id="f-save">Save</button>
+      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+  import { nav, $, esc, json, SESSION_TYPES, sessions, results, uid, fmtDate } from '../app.js';
+  nav();
+  const { levels } = await json('../levels.json');
+  $('#f-type').innerHTML = SESSION_TYPES.map((t) => `<option>${esc(t)}</option>`).join('');
+  $('#f-level').innerHTML = levels.map((l) => `<option>${esc(l)}</option>`).join('');
+  const dlg = $('#dlg');
+  let editing = null;
+
+  function open(s) {
+    editing = s || null;
+    $('#dlg-h').textContent = s ? 'Edit session' : 'Add session';
+    $('#f-date').value = s?.date || new Date().toISOString().slice(0, 10);
+    $('#f-time').value = s?.time || '17:00';
+    $('#f-type').value = s?.type || SESSION_TYPES[0];
+    $('#f-level').value = s?.level || levels[0];
+    $('#f-focus').value = s?.focus || '';
+    $('#f-notes').value = s?.notes || '';
+    $('#f-err').hidden = true;
+    dlg.showModal();
+  }
+
+  $('#f-save').addEventListener('click', (e) => {
+    if (!$('#f-date').value || !$('#f-time').value) { e.preventDefault(); $('#f-err').hidden = false; return; }
+    sessions.save({ ...(editing || { id: uid() }), date: $('#f-date').value, time: $('#f-time').value, type: $('#f-type').value,
+      level: $('#f-level').value, focus: $('#f-focus').value.trim(), notes: $('#f-notes').value.trim() });
+  });
+  dlg.addEventListener('close', render);
+  $('#add').addEventListener('click', () => open());
+
+  function render() {
+    const all = sessions.all();
+    $('#list').innerHTML = all.length ? all.map((s) => {
+      const ready = s.resultId && results.get(s.resultId);
+      const upload = `upload.html?session=${s.id}&type=${encodeURIComponent(s.type)}&level=${encodeURIComponent(s.level)}`;
+      return `<article class="session">
+        <p class="when" style="margin:0"><strong>${fmtDate(s.date)}</strong>${esc(s.time)}</p>
+        <div><div class="tags"><span class="tag accent">${esc(s.type)}</span><span class="tag">${esc(s.level)}</span></div>
+          <p style="margin:10px 0 0;font-weight:500">${s.focus ? 'Focus: ' + esc(s.focus) : 'No focus skill set'}</p>
+          ${s.notes ? `<p class="muted" style="margin:4px 0 0">${esc(s.notes)}</p>` : ''}</div>
+        <div class="acts">
+          ${ready ? `<a class="btn btn-primary" href="results.html?id=${s.resultId}">Results ready</a>` : `<a class="btn btn-primary" href="${upload}">Upload film for this session</a>`}
+          <button class="btn btn-secondary" type="button" data-edit="${s.id}">Edit</button>
+          <button class="btn btn-danger" type="button" data-del="${s.id}">Delete</button>
+        </div></article>`;
+    }).join('') : `<div class="empty"><p style="margin:0 0 16px">No sessions scheduled yet.</p><button class="btn btn-primary" type="button" onclick="document.getElementById('add').click()">Add session</button></div>`;
+  }
+  $('#list').addEventListener('click', (e) => {
+    const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+    if (ed) open(sessions.get(ed.dataset.edit));
+    if (del && confirm('Delete this session?')) { sessions.remove(del.dataset.del); render(); }
+  });
+  render();
+</script>
 </body>
 </html>

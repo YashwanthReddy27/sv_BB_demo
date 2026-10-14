@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SportsVision: The Ultimate Sports Platform</title>
+  <link rel="stylesheet" href="../sportsvision/sportsvision.css">
+  <link rel="stylesheet" href="../theme.css">
+  <style>
+    .page { min-height: 100vh; background: var(--paper); }
+    .page-inner { display: grid; gap: 40px; max-width: 1240px; margin: 0 auto; padding: 56px 24px 96px; }
+    .hero { text-align: left; padding-bottom: 8px; border-bottom: 1px solid var(--hairline); padding-bottom: 40px; }
+    .hero h1 { margin: 0; color: var(--ink); font-size: clamp(40px, 6vw, 72px); font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; }
+    .hero h2 { margin: 16px 0 0; color: var(--ink-2); font-size: clamp(20px, 2.2vw, 28px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.25; }
+    .hero p { margin: 18px 0 0; color: var(--accent-ink); font: 500 13px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+    @media (max-width: 600px) { .page-inner { padding: 36px 16px 72px; gap: 32px; } }
+  </style>
+</head>
+<body>
+  <div class="sv-root page">
+    <div class="page-inner">
+      <header class="hero">
+        <h1>SportsVision.AI</h1>
+        <h2>LAMP: Limitless Analytics for Mastering Performance</h2>
+        <p>Train Smarter . Perform Better . Win Bigger</p>
+      </header>
+
+      <section class="sv-stack">
+        <h3 class="sv-section-title">Shot Analysis</h3>
+        <div id="shot-analysis"></div>
+      </section>
+
+      <section class="sv-grid-2">
+        <div class="sv-card">
+          <h4 class="sv-card-title">Ball Tracking and Trajectory Analysis</h4>
+          <video class="sv-video" src="../media/ball-tracking-trajectory-analysis.mp4" controls preload="metadata" playsinline></video>
+        </div>
+        <div class="sv-card">
+          <h4 class="sv-card-title">Player Tracking and Analysis</h4>
+          <video class="sv-video" src="../media/player-tracking-analysis.mp4" controls preload="metadata" playsinline></video>
+        </div>
+      </section>
+
+      <section class="sv-grid-2">
+        <div class="sv-card">
+          <h4 class="sv-card-title">AI Powered Injury Risk Assessment</h4>
+          <div class="sv-prose">
+            <ol>
+              <li>Ankle: The athlete has a history of ankle sprains, and the biomechanical analysis suggests a limited range of motion and potential instability in the ankle joint. This may increase the risk of ankle sprains or other ankle injuries.</li>
+              <li>Knee: The biomechanical analysis suggests that the athlete may have a valgus (knock-knee) alignment during landing, which can increase the stress on the knee joint and potentially lead to knee injuries such as ACL or MCL tears.</li>
+              <li>Hip: The athlete has a limited range of motion in the hip joint, which may lead to compensations and increased stress on other areas of the body such as the lower back.</li>
+              <li>Lower back: The biomechanical analysis suggests that the athlete may have a tendency to overuse the lower back muscles during certain movements, which can increase the risk of lower back injuries such as strains or disc herniations.</li>
+            </ol>
+          </div>
+        </div>
+        <div class="sv-card">
+          <h4 class="sv-card-title">AI Powered Personalized Feedback</h4>
+          <div class="sv-prose">
+            <ol>
+              <li>Consistency: The player's movements appear to be relatively consistent, which is a good sign. Consistency in movement is important for developing muscle memory and improving overall technique.</li>
+              <li>Posture: The player's posture seems to be generally upright and balanced, which is important for maintaining control and stability while moving and performing basketball skills. However, it is hard to determine if the player's posture is optimal without more information about the task or objective.</li>
+              <li>Footwork: The player's footwork appears to be decent but could be improved. The player should focus on keeping their feet wide and maintaining good balance while moving and performing basketball skills.</li>
+              <li>Hand and arm movement: Based on the data provided, it is hard to provide feedback on the player's hand and arm movement. However, it is important to keep the arms and hands relaxed while dribbling or shooting and to follow through with the shot.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="sv-card">
+        <h4 class="sv-card-title">AI Powered Personalized Training Plan</h4>
+        <div class="sv-prose">
+          <ol>
+            <li>Warm-up: 10-15 minutes of jogging, skipping, or cycling to increase blood flow and loosen up muscles.</li>
+            <li>Plyometrics: This type of training helps improve explosive power and speed. Here are some exercises the player can perform:</li>
+            <li>Jump squats: Stand with feet shoulder-width apart, lower into a squat, and then jump as high as possible. Repeat for 3 sets of 10 reps.</li>
+            <li>Box jumps: Stand in front of a sturdy box or platform, and then jump up onto it, landing softly. Repeat for 3 sets of 10 reps.</li>
+            <li>Bounds: Starting in a lunge position, jump forward as far as possible, landing on the front foot. Repeat for 3 sets of 10 reps on each leg.</li>
+            <li>Sprints: This type of training will help improve the player's acceleration and overall speed. Here are some exercises the player can perform:</li>
+            <li>30-meter sprints: Sprint at maximum effort for 30 meters, rest for 30 seconds, and repeat for 6-8 sets.</li>
+            <li>Shuttle runs: Set up 2 cones 10 meters apart. Sprint from one cone to the other, touch the ground, and sprint back. Repeat for 6-8 sets.</li>
+            <li>Hill sprints: Find a steep hill and sprint up it as fast as possible. Walk down to recover and repeat for 6-8 sets.</li>
+            <li>Strength training: This type of training will help the player build overall strength and power, which will translate into improved speed on the court. Here are some exercises the player can perform:</li>
+            <li>Deadlifts: 3 sets of 8 reps</li>
+            <li>Squats: 3 sets of 8 reps</li>
+            <li>Lunges: 3 sets of 8 reps on each leg</li>
+            <li>Calf raises: 3 sets of 12 reps</li>
+            <li>Cool-down: 5-10 minutes of light jogging or cycling, followed by stretching to help prevent muscle soreness and injury.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="sv-card">
+        <div class="sv-prose">
+          <p>Height: Height is a crucial factor in basketball, and it plays a significant role in determining a player's position. Centers and power forwards tend to be the tallest players on the team, while point guards and shooting guards are usually shorter.</p>
+          <p>Wingspan: A player's wingspan is the distance between the tips of their outstretched arms. A long wingspan can help a player block shots, steal passes, and get rebounds.</p>
+          <p>Weight: Weight is an essential factor in basketball because it affects a player's strength and ability to move on the court. A player's weight must be appropriate for their position and playing style.</p>
+          <p>Body fat percentage: A player's body fat percentage is an important measure of their fitness level. A low body fat percentage can help a player move more quickly and jump higher.</p>
+          <p>Speed: Speed is a critical factor in basketball because it affects a player's ability to move quickly on the court. A fast player can drive to the basket, get open for a shot, or steal the ball from an opponent.</p>
+          <p>Agility: Agility is the ability to change direction quickly and maintain balance while doing so. It's essential for dribbling, defending, and driving to the basket.</p>
+          <p>Strength: Strength is important in basketball because it helps players to control the ball, play defense, and battle for rebounds.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { shotAnalysis } from '../sportsvision/sportsvision.js';
+    import { nav } from '../app.js';
+    nav();
+
+    const clips = '../media/';
+    const out = '../media/';
+    shotAnalysis(document.getElementById('shot-analysis'), {
+      shots: [
+        { label: 'Success 1', raw: clips + '1-success.mp4', overlay: out + '1-success-analysis.mp4', data: out + '1-success-pose.csv' },
+        { label: 'Success 2', raw: clips + '2-success.mp4', overlay: out + '2-success-analysis.mp4', data: out + '2-success-pose.csv' },
+        { label: 'Failed 1', raw: clips + '1-failed.mp4', overlay: out + '1-failed-analysis.mp4', data: out + '1-failed-pose.csv' }
+      ]
+    });
+  </script>
+</body>
+</html>

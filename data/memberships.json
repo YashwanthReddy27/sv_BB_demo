@@ -1,6 +1,0 @@
-[
-  { "name": "[Starter]", "perWeek": "[1 session / week]", "price": "[$000]", "for": "[Who this tier is for]", "featured": false },
-  { "name": "[Regular]", "perWeek": "[2 sessions / week]", "price": "[$000]", "for": "[Who this tier is for]", "featured": false },
-  { "name": "[Committed]", "perWeek": "[3 sessions / week]", "price": "[$000]", "for": "[Who this tier is for]", "featured": true },
-  { "name": "[Unlimited]", "perWeek": "[Unlimited sessions]", "price": "[$000]", "for": "[Who this tier is for]", "featured": false }
-]

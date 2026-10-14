@@ -1,0 +1,19 @@
+{
+  "_note": "TODO: coach to review. Keys match the issues named in the analysis feedback and injury risk assessment.",
+  "issues": {
+    "footwork": { "title": "Footwork", "drills": [
+      { "name": "Ladder in-and-outs", "howto": "Agility ladder, two feet in, two feet out, down and back, staying on the balls of the feet.", "cue": "Feet wide, chest up, stay balanced.", "reps": "4 × 2 lengths", "status": "TODO: coach to review" },
+      { "name": "1-2 step into shot", "howto": "Catch on the move, plant inside foot then outside foot, square up and shoot.", "cue": "Land balanced before the ball goes up.", "reps": "3 × 10 shots", "status": "TODO: coach to review" } ] },
+    "hand_arm": { "title": "Hand and arm movement", "drills": [
+      { "name": "One-hand form shooting", "howto": "Stand close to the rim and shoot with the shooting hand only, holding the follow-through.", "cue": "Relaxed hand, reach into the cookie jar.", "reps": "3 × 10 makes", "status": "TODO: coach to review" },
+      { "name": "Pound dribble series", "howto": "Hard dribbles at knee height, 30 seconds each hand, then crossover.", "cue": "Fingertips, not palm. Keep the wrist loose.", "reps": "3 × 30 s per hand", "status": "TODO: coach to review" } ] },
+    "ankle": { "title": "Ankle", "drills": [
+      { "name": "Single-leg balance reach", "howto": "Balance on one leg and reach the other foot forward, side and back.", "cue": "Knee over toes, ankle steady.", "reps": "3 × 8 per leg", "status": "TODO: coach to review" } ] },
+    "knee": { "title": "Knee", "drills": [
+      { "name": "Soft-landing drop jumps", "howto": "Step off a low box and land on two feet, holding the landing for two seconds.", "cue": "Knees push out over the toes, never in.", "reps": "3 × 6 landings", "status": "TODO: coach to review" } ] },
+    "hip": { "title": "Hip", "drills": [
+      { "name": "90/90 hip switches", "howto": "Seated with both knees bent at 90°, rotate the knees side to side under control.", "cue": "Tall spine, move from the hips.", "reps": "2 × 10 switches", "status": "TODO: coach to review" } ] },
+    "lower_back": { "title": "Lower back", "drills": [
+      { "name": "Dead bug", "howto": "On your back, arms and knees up, extend the opposite arm and leg while keeping the lower back flat.", "cue": "Ribs down, back glued to the floor.", "reps": "3 × 8 per side", "status": "TODO: coach to review" } ] }
+  }
+}
