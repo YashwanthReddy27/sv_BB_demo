@@ -5,98 +5,205 @@
 <title>Schedule · SportsVision.AI</title>
 <link rel="stylesheet" href="../sportsvision/sportsvision.css">
 <link rel="stylesheet" href="../theme.css">
-<style>
-  .session { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; gap: 20px; align-items: start; padding: 20px 0; border-top: 1px solid var(--hairline); }
-  .session:first-child { border-top: 0; padding-top: 0; }
-  .session .when { font-family: var(--mono); font-size: 14px; }
-  .session .when strong { display: block; font-family: var(--font); font-size: 17px; letter-spacing: -0.01em; }
-  .session .acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-  @media (max-width: 760px) { .session { grid-template-columns: 1fr; gap: 10px; } .session .acts { justify-content: flex-start; } }
-  dialog { border: 0; border-radius: 20px; padding: 0; width: min(600px, calc(100vw - 32px)); }
-  dialog::backdrop { background: rgba(14, 15, 17, .5); }
-</style>
 </head>
 <body>
 <main class="page-main" id="main">
   <header style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
-    <div><p class="label">Training schedule</p><h1 class="title">Schedule</h1></div>
-    <button class="btn btn-primary" type="button" id="add">Add session</button>
+    <div><p class="label">Training schedule</p><h1 class="page-h1">Schedule</h1></div>
+    <button class="btn btn-primary" type="button" id="new">+ New session</button>
   </header>
-  <section class="card" aria-label="Upcoming sessions"><div id="list"></div></section>
+
+  <div class="cal-bar">
+    <div class="cal-nav">
+      <button type="button" class="icon-btn" id="prev" aria-label="Previous week">‹</button>
+      <button type="button" class="btn btn-secondary" id="today">Today</button>
+      <button type="button" class="icon-btn" id="next" aria-label="Next week">›</button>
+      <h2 class="h3" id="range" style="margin-left:6px" aria-live="polite"></h2>
+    </div>
+    <div class="seg-btns" role="group" aria-label="View">
+      <button type="button" data-view="week" aria-pressed="true">Week</button>
+      <button type="button" data-view="list" aria-pressed="false">List</button>
+    </div>
+  </div>
+  <section id="cal" aria-label="Sessions"></section>
 </main>
 
-<dialog id="dlg" aria-labelledby="dlg-h">
-  <form method="dialog" class="card" id="form" style="border:0" novalidate>
-    <h2 class="h2" id="dlg-h" style="margin-bottom:20px">Add session</h2>
+<dialog class="drawer" id="edit" aria-labelledby="edit-h">
+  <form class="drawer-body" id="form" novalidate>
+    <div class="drawer-head"><h2 class="h2" id="edit-h">New session</h2><button type="button" class="icon-btn" data-close aria-label="Close">×</button></div>
+    <div class="field"><label for="f-title">Title</label><input class="input" id="f-title" required placeholder="e.g. Shooting form"><span class="err" id="e-title" hidden>Add a title.</span></div>
     <div class="form-grid">
       <div class="field"><label for="f-date">Date</label><input class="input" type="date" id="f-date" required></div>
       <div class="field"><label for="f-time">Time</label><input class="input" type="time" id="f-time" required></div>
-      <div class="field"><label for="f-type">Session type</label><select class="input" id="f-type"></select></div>
+      <div class="field"><label for="f-dur">Duration (min)</label><input class="input" type="number" id="f-dur" min="15" step="5" value="60"></div>
       <div class="field"><label for="f-level">Level</label><select class="input" id="f-level"></select></div>
-      <div class="field span-2"><label for="f-focus">Focus skill</label><input class="input" id="f-focus" placeholder="e.g. Footwork"></div>
-      <div class="field span-2"><label for="f-notes">Notes</label><textarea class="input" id="f-notes" style="min-height:90px"></textarea></div>
     </div>
-    <p class="err" id="f-err" hidden style="margin-top:12px">Add a date and time.</p>
-    <div class="btn-row" style="margin-top:24px">
-      <button class="btn btn-primary" value="save" id="f-save">Save</button>
-      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancel</button>
-    </div>
+    <div class="field"><span class="flabel" id="type-l">Type</span><div class="seg" role="radiogroup" aria-labelledby="type-l" id="f-type"></div></div>
+    <div class="field"><label for="f-athletes">Athletes</label><input class="input" id="f-athletes" placeholder="Names, separated by commas">
+      <div class="athlete-picks" id="known" aria-label="Known athletes"></div></div>
+    <div class="field"><label for="f-focus">Focus</label><input class="input" id="f-focus" list="focus-list" placeholder="Pick from the work-on list or type one">
+      <datalist id="focus-list"></datalist></div>
+    <div class="field"><label for="f-notes">Notes</label><textarea class="input" id="f-notes" style="min-height:90px"></textarea></div>
+    <div class="field" id="repeat-field"><label class="toggle"><input type="checkbox" id="f-repeat"> Repeat weekly</label>
+      <div id="repeat-n-wrap" hidden><label for="f-repeat-n">Number of weeks</label><input class="input" type="number" id="f-repeat-n" min="2" max="12" value="4"></div></div>
+    <div class="btn-row"><button class="btn btn-primary" type="submit">Save session</button><button class="btn btn-secondary" type="button" data-close>Cancel</button></div>
   </form>
 </dialog>
 
+<dialog class="drawer" id="detail" aria-labelledby="d-title">
+  <div class="drawer-body" id="detail-body"></div>
+</dialog>
+
 <script type="module">
-  import { nav, $, esc, json, SESSION_TYPES, sessions, results, uid, fmtDate } from '../app.js';
+  import { nav, $, $$, esc, json, params, SESSION_TYPES, sessions, results, sessionStatus, uid, fmtDate, today } from '../app.js';
+  import { phrase } from '../js/analysis.js';
+  import { loadShots, refsFor } from '../app.js';
+  import { compare, JOINTS } from '../js/analysis.js';
   nav();
   const { levels } = await json('../levels.json');
-  $('#f-type').innerHTML = SESSION_TYPES.map((t) => `<option>${esc(t)}</option>`).join('');
-  $('#f-level').innerHTML = levels.map((l) => `<option>${esc(l)}</option>`).join('');
-  const dlg = $('#dlg');
+  const shots = await loadShots();
+  const miss = shots.find((s) => s.result === 'miss');
+  const workOn = miss ? compare(miss, refsFor(miss, shots)).slice(0, 3).map(phrase) : [];
+  const focusOptions = [...workOn, ...JOINTS.map((j) => `${j.name} at release`)];
+
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+  const monday = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
+  const fmtTime = (t) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+  const endTime = (t, mins) => { const [h, m] = t.split(':').map(Number); const e = h * 60 + m + Number(mins || 60); return fmtTime(`${Math.floor(e / 60) % 24}:${String(e % 60).padStart(2, '0')}`); };
+
+  let week = monday(today());
+  let view = 'week';
   let editing = null;
 
-  function open(s) {
-    editing = s || null;
-    $('#dlg-h').textContent = s ? 'Edit session' : 'Add session';
-    $('#f-date').value = s?.date || new Date().toISOString().slice(0, 10);
-    $('#f-time').value = s?.time || '17:00';
-    $('#f-type').value = s?.type || SESSION_TYPES[0];
-    $('#f-level').value = s?.level || levels[0];
-    $('#f-focus').value = s?.focus || '';
-    $('#f-notes').value = s?.notes || '';
-    $('#f-err').hidden = true;
-    dlg.showModal();
-  }
-
-  $('#f-save').addEventListener('click', (e) => {
-    if (!$('#f-date').value || !$('#f-time').value) { e.preventDefault(); $('#f-err').hidden = false; return; }
-    sessions.save({ ...(editing || { id: uid() }), date: $('#f-date').value, time: $('#f-time').value, type: $('#f-type').value,
-      level: $('#f-level').value, focus: $('#f-focus').value.trim(), notes: $('#f-notes').value.trim() });
-  });
-  dlg.addEventListener('close', render);
-  $('#add').addEventListener('click', () => open());
-
+  // ---------- render ----------
+  const chips = (s) => { const st = sessionStatus(s); return `<span class="chips"><span class="chip neutral">${esc(s.type)}</span><span class="chip st-${st.key}">${st.label}</span></span>`; };
   function render() {
-    const all = sessions.all();
-    $('#list').innerHTML = all.length ? all.map((s) => {
-      const ready = s.resultId && results.get(s.resultId);
-      const upload = `upload.html?session=${s.id}&type=${encodeURIComponent(s.type)}&level=${encodeURIComponent(s.level)}`;
-      return `<article class="session">
-        <p class="when" style="margin:0"><strong>${fmtDate(s.date)}</strong>${esc(s.time)}</p>
-        <div><div class="tags"><span class="tag accent">${esc(s.type)}</span><span class="tag">${esc(s.level)}</span></div>
-          <p style="margin:10px 0 0;font-weight:500">${s.focus ? 'Focus: ' + esc(s.focus) : 'No focus skill set'}</p>
-          ${s.notes ? `<p class="muted" style="margin:4px 0 0">${esc(s.notes)}</p>` : ''}</div>
-        <div class="acts">
-          ${ready ? `<a class="btn btn-primary" href="results.html?id=${s.resultId}">Results ready</a>` : `<a class="btn btn-primary" href="${upload}">Upload film for this session</a>`}
-          <button class="btn btn-secondary" type="button" data-edit="${s.id}">Edit</button>
-          <button class="btn btn-danger" type="button" data-del="${s.id}">Delete</button>
-        </div></article>`;
-    }).join('') : `<div class="empty"><p style="margin:0 0 16px">No sessions scheduled yet.</p><button class="btn btn-primary" type="button" onclick="document.getElementById('add').click()">Add session</button></div>`;
+    const days = [...Array(7)].map((_, i) => addDays(week, i));
+    $('#range').textContent = `${fmtDate(days[0], { month: 'short', day: 'numeric' })} – ${fmtDate(days[6], { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    const inWeek = sessions.all().filter((s) => s.date >= days[0] && s.date <= days[6]);
+    if (view === 'week') {
+      $('#cal').innerHTML = `<div class="week">${days.map((d) => {
+        const evs = inWeek.filter((s) => s.date === d);
+        return `<div class="day${d === today() ? ' today' : ''}">
+          <div class="day-h"><span class="label">${fmtDate(d, { weekday: 'short' })}</span><span class="num">${parse(d).getDate()}</span></div>
+          ${evs.length ? evs.map((s) => `<button type="button" class="ev" data-open="${s.id}">
+            <span class="t">${fmtTime(s.time)} – ${endTime(s.time, s.duration)}</span><strong>${esc(s.title)}</strong>
+            ${(s.athletes || []).length ? `<span class="who">${esc(s.athletes.join(', '))}</span>` : ''}${chips(s)}</button>`).join('')
+          : '<p class="empty-day">No sessions</p>'}</div>`;
+      }).join('')}</div>`;
+    } else {
+      const groups = days.map((d) => [d, inWeek.filter((s) => s.date === d)]).filter(([, e]) => e.length);
+      $('#cal').innerHTML = `<div class="card">${groups.length ? groups.map(([d, evs]) => `<div class="list-day">
+        <h3 class="h3">${fmtDate(d, { weekday: 'long', month: 'long', day: 'numeric' })}</h3>
+        ${evs.map((s) => `<button type="button" class="list-row" data-open="${s.id}">
+          <span class="num">${fmtTime(s.time)} – ${endTime(s.time, s.duration)}</span>
+          <span><strong>${esc(s.title)}</strong>${(s.athletes || []).length ? `<span class="muted" style="display:block;font-size:14px">${esc(s.athletes.join(', '))}</span>` : ''}${s.focus ? `<span class="muted" style="display:block;font-size:14px">Focus: ${esc(s.focus)}</span>` : ''}</span>
+          ${chips(s)}</button>`).join('')}</div>`).join('')
+        : `<div class="empty"><p style="margin:0 0 16px">No sessions this week.</p><button type="button" class="btn btn-primary" data-new>+ New session</button></div>`}</div>`;
+    }
   }
-  $('#list').addEventListener('click', (e) => {
-    const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
-    if (ed) open(sessions.get(ed.dataset.edit));
-    if (del && confirm('Delete this session?')) { sessions.remove(del.dataset.del); render(); }
+
+  // ---------- new / edit drawer ----------
+  const editDlg = $('#edit');
+  $('#f-level').innerHTML = levels.map((l) => `<option>${esc(l)}</option>`).join('');
+  $('#f-type').innerHTML = SESSION_TYPES.map((t, i) => `<label><input type="radio" name="ftype" value="${esc(t)}"${i ? '' : ' checked'}><span>${esc(t)}</span></label>`).join('');
+  $('#focus-list').innerHTML = focusOptions.map((f) => `<option value="${esc(f)}"></option>`).join('');
+  const known = [...new Set(results.all().map((r) => r.athlete.trim()).concat(sessions.all().flatMap((s) => s.athletes || [])))].filter(Boolean).sort();
+  $('#known').innerHTML = known.map((n) => `<label><input type="checkbox" value="${esc(n)}"> ${esc(n)}</label>`).join('');
+  const athletesFromForm = () => [...new Set($('#f-athletes').value.split(',').map((x) => x.trim()).filter(Boolean)
+    .concat($$('#known input:checked').map((c) => c.value)))];
+  $('#f-repeat').addEventListener('change', (e) => { $('#repeat-n-wrap').hidden = !e.target.checked; });
+
+  function openEdit(s, pre = {}) {
+    editing = s || null;
+    $('#edit-h').textContent = s ? 'Edit session' : 'New session';
+    $('#f-title').value = s?.title || pre.title || '';
+    $('#f-date').value = s?.date || pre.date || today();
+    $('#f-time').value = s?.time || '17:00';
+    $('#f-dur').value = s?.duration || 60;
+    $('#f-level').value = s?.level || pre.level || levels[0];
+    const type = s?.type || pre.type || SESSION_TYPES[0];
+    $$('input[name=ftype]').forEach((r) => { r.checked = r.value === type; });
+    const ath = s?.athletes || (pre.athlete ? [pre.athlete] : []);
+    $$('#known input').forEach((c) => { c.checked = ath.includes(c.value); });
+    $('#f-athletes').value = ath.filter((a) => !known.includes(a)).join(', ');
+    $('#f-focus').value = s?.focus || pre.focus || '';
+    $('#f-notes').value = s?.notes || '';
+    $('#repeat-field').hidden = !!s;
+    $('#f-repeat').checked = false; $('#repeat-n-wrap').hidden = true;
+    $('#e-title').hidden = true;
+    editDlg.showModal();
+    $('#f-title').focus();
+  }
+  $('#form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!$('#f-title').value.trim()) { $('#e-title').hidden = false; $('#f-title').setAttribute('aria-invalid', 'true'); $('#f-title').focus(); return; }
+    const base = {
+      title: $('#f-title').value.trim(), date: $('#f-date').value || today(), time: $('#f-time').value || '17:00',
+      duration: Number($('#f-dur').value) || 60, level: $('#f-level').value, type: $('input[name=ftype]:checked').value,
+      athletes: athletesFromForm(), focus: $('#f-focus').value.trim(), notes: $('#f-notes').value.trim(),
+    };
+    if (editing) sessions.save({ ...editing, ...base });
+    else {
+      const n = $('#f-repeat').checked ? Math.max(2, Math.min(12, Number($('#f-repeat-n').value) || 4)) : 1;
+      const series = n > 1 ? uid() : '';
+      for (let i = 0; i < n; i++) sessions.save({ id: uid() + i, ...base, date: addDays(base.date, 7 * i), series });
+    }
+    week = monday(base.date);
+    editDlg.close();
+    render();
   });
+
+  // ---------- detail drawer ----------
+  const detail = $('#detail');
+  function openDetail(id) {
+    const s = sessions.get(id);
+    if (!s) return;
+    const st = sessionStatus(s);
+    const upload = `upload.html?session=${s.id}&type=${encodeURIComponent(s.type)}&level=${encodeURIComponent(s.level)}${s.athletes?.[0] ? `&athlete=${encodeURIComponent(s.athletes[0])}` : ''}`;
+    $('#detail-body').innerHTML = `
+      <div class="drawer-head"><h2 class="h2" id="d-title">${esc(s.title)}</h2><button type="button" class="icon-btn" data-close aria-label="Close">×</button></div>
+      <div class="tags"><span class="chip neutral">${esc(s.type)}</span><span class="chip neutral">${esc(s.level)}</span><span class="chip st-${st.key}">${st.label}</span></div>
+      <dl style="display:grid;gap:14px;margin:0">
+        <div><dt class="label">When</dt><dd style="margin:4px 0 0">${fmtDate(s.date, { weekday: 'long', month: 'long', day: 'numeric' })} · ${fmtTime(s.time)} – ${endTime(s.time, s.duration)} (${s.duration} min)</dd></div>
+        <div><dt class="label">Athletes</dt><dd style="margin:4px 0 0">${(s.athletes || []).length ? esc(s.athletes.join(', ')) : 'None added'}</dd></div>
+        <div><dt class="label">Plan · focus</dt><dd style="margin:4px 0 0">${s.focus ? esc(s.focus) : 'No focus set'}</dd></div>
+        ${s.notes ? `<div><dt class="label">Notes</dt><dd style="margin:4px 0 0">${esc(s.notes)}</dd></div>` : ''}
+      </dl>
+      <div class="btn-row">
+        ${s.resultId && results.get(s.resultId) ? `<a class="btn btn-primary" href="index.html?id=${s.resultId}">View feedback</a>` : ''}
+        <a class="btn ${s.resultId ? 'btn-secondary' : 'btn-primary'}" href="${upload}">Upload film for this session</a>
+      </div>
+      <div class="btn-row"><button type="button" class="btn btn-secondary" id="d-edit">Edit</button><button type="button" class="btn btn-danger" id="d-del">Delete</button></div>`;
+    $('#d-edit').addEventListener('click', () => { detail.close(); openEdit(s); });
+    $('#d-del').addEventListener('click', () => { if (confirm('Delete this session?')) { sessions.remove(s.id); detail.close(); render(); } });
+    detail.showModal();
+  }
+
+  // ---------- events ----------
+  document.addEventListener('click', (e) => {
+    const o = e.target.closest('[data-open]'); if (o) openDetail(o.dataset.open);
+    if (e.target.closest('[data-new]')) openEdit();
+    if (e.target.closest('[data-close]')) e.target.closest('dialog').close();
+  });
+  [editDlg, detail].forEach((d) => d.addEventListener('click', (e) => { if (e.target === d) d.close(); }));
+  $('#new').addEventListener('click', () => openEdit());
+  $('#prev').addEventListener('click', () => { week = addDays(week, -7); render(); });
+  $('#next').addEventListener('click', () => { week = addDays(week, 7); render(); });
+  $('#today').addEventListener('click', () => { week = monday(today()); render(); });
+  $$('[data-view]').forEach((b) => b.addEventListener('click', () => {
+    view = b.dataset.view;
+    $$('[data-view]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    render();
+  }));
   render();
+  if (params.get('new')) {
+    openEdit(null, { focus: params.get('focus') || '', athlete: params.get('athlete') || '', type: params.get('type') || '', level: params.get('level') || '',
+      title: params.get('focus') ? `Work on: ${params.get('focus')}` : '' });
+    history.replaceState(null, '', location.pathname);
+  }
 </script>
 </body>
 </html>

@@ -1,20 +1,40 @@
-// Shared helpers for the upload, results, history and schedule screens.
+// Shared helpers for every page: shot catalogue, browser storage, nav, share links.
 // Everything is stored in the browser (localStorage); there is no server.
 import { loadCsv } from './sportsvision/sportsvision.js';
+import { buildShot, compare, phrase } from './js/analysis.js';
 
-// The clips the existing analysis has already processed. Uploads are matched to one of these.
-export const SHOTS = {
-  'success-1': { label: 'Success 1', raw: '../media/1-success.mp4', overlay: '../media/1-success-analysis.mp4', data: '../media/1-success-pose.csv' },
-  'success-2': { label: 'Success 2', raw: '../media/2-success.mp4', overlay: '../media/2-success-analysis.mp4', data: '../media/2-success-pose.csv' },
-  'failed-1': { label: 'Failed 1', raw: '../media/1-failed.mp4', overlay: '../media/1-failed-analysis.mp4', data: '../media/1-failed-pose.csv' },
-};
+// The clips the existing analysis has processed, in the original order. Make/miss comes from the clip name.
+export const SHOTS = [
+  { id: 'shot-1', label: 'Shot 1', clip: '1 Success', result: 'make', raw: '../media/1-success.mp4', overlay: '../media/1-success-analysis.mp4', data: '../media/1-success-pose.csv', thumb: '../img/1-success-thumb.jpg' },
+  { id: 'shot-2', label: 'Shot 2', clip: '2 Success', result: 'make', raw: '../media/2-success.mp4', overlay: '../media/2-success-analysis.mp4', data: '../media/2-success-pose.csv', thumb: '../img/2-success-thumb.jpg' },
+  { id: 'shot-3', label: 'Shot 3', clip: '1 Failed', result: 'miss', raw: '../media/1-failed.mp4', overlay: '../media/1-failed-analysis.mp4', data: '../media/1-failed-pose.csv', thumb: '../img/1-failed-thumb.jpg' },
+];
 export const SESSION_TYPES = ['Individual', 'Small group', 'Team'];
-const JOINTS = [['Left', 'Shoulder'], ['Right', 'Shoulder'], ['Left', 'Elbow'], ['Right', 'Elbow'], ['Left', 'Wrist'], ['Right', 'Wrist']];
 
 export const $ = (s, r = document) => r.querySelector(s);
+export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const params = new URLSearchParams(location.search);
 export const json = (name) => fetch(name).then((r) => r.json());
+export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+// ---------- analysis data ----------
+let shotsPromise;
+export function loadShots() {
+  shotsPromise ??= Promise.all(SHOTS.map(async (s) => buildShot(s, await loadCsv(s.data))));
+  return shotsPromise;
+}
+export const refsFor = (shot, all) => all.filter((s) => s.result === 'make' && s.id !== shot.id);
+export function feedbackFor(shot, all) {
+  const rows = compare(shot, refsFor(shot, all));
+  return { rows, workOn: rows.slice(0, 3), top: rows[0] ? phrase(rows[0]) : '' };
+}
+// The miss drives the session's top "work on" item; with no miss, the least consistent make does.
+export async function sessionTop() {
+  const all = await loadShots();
+  const miss = all.find((s) => s.result === 'miss') || all[0];
+  return feedbackFor(miss, all).workOn;
+}
 
 // ---------- storage ----------
 function read(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
@@ -23,7 +43,8 @@ export const results = {
   all: () => read('sv-results'),
   get: (id) => read('sv-results').find((r) => r.id === id),
   save(r) { const all = read('sv-results').filter((x) => x.id !== r.id); all.push(r); write('sv-results', all); },
-  byAthlete: (name) => read('sv-results').filter((r) => r.athlete.trim().toLowerCase() === name.trim().toLowerCase()).sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created),
+  byAthlete: (name) => read('sv-results').filter((r) => r.athlete.trim().toLowerCase() === name.trim().toLowerCase())
+    .sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created),
 };
 export const sessions = {
   all: () => read('sv-sessions').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)),
@@ -31,21 +52,16 @@ export const sessions = {
   save(s) { const all = read('sv-sessions').filter((x) => x.id !== s.id); all.push(s); write('sv-sessions', all); },
   remove(id) { write('sv-sessions', read('sv-sessions').filter((x) => x.id !== id)); },
 };
-export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-
-// ---------- key metrics: vertical travel of each tracked joint (from the pose data) ----------
-export async function keyMetrics(shotKey) {
-  const rows = await loadCsv(SHOTS[shotKey].data);
-  return JOINTS.map(([side, joint]) => {
-    const ys = rows.map((r) => Number(r[`${side}_${joint}_Keypoint_Y_coordinate`])).filter((v) => v > 0);
-    return { key: `${side}_${joint}`, label: `${side} ${joint} Deviation`, value: Math.round(Math.max(...ys) - Math.min(...ys)), unit: 'px' };
-  });
+export function sessionStatus(s) {
+  const r = s.resultId && results.get(s.resultId);
+  if (!r) return { key: 'scheduled', label: 'Scheduled' };
+  return r.viewed ? { key: 'ready', label: 'Feedback ready' } : { key: 'uploaded', label: 'Film uploaded' };
 }
 
 // ---------- share: a read-only link carrying the result + notes ----------
-export function shareLink(r) {
-  const data = btoa(unescape(encodeURIComponent(JSON.stringify(r))));
-  return `${location.origin}${location.pathname.replace(/[^/]*$/, '')}results.html?view=${encodeURIComponent(data)}`;
+export function shareLink(data) {
+  const v = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  return `${location.origin}${location.pathname.replace(/[^/]*$/, '')}index.html?view=${encodeURIComponent(v)}`;
 }
 export function fromShare(v) {
   try { return JSON.parse(decodeURIComponent(escape(atob(v)))); } catch { return null; }
@@ -56,34 +72,24 @@ export function toast(msg) {
   t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
   document.body.append(t); setTimeout(() => t.remove(), 2600);
 }
-export const fmtDate = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+export const fmtDate = (iso, o = { month: 'short', day: 'numeric', year: 'numeric' }) => new Date(iso + 'T12:00:00').toLocaleDateString('en-US', o);
+export const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
-// ---------- nav ----------
+// ---------- nav + footer ----------
 export function nav() {
   const here = location.pathname.split('/').pop() || 'index.html';
-  const links = [['index.html', 'Analysis'], ['upload.html', 'Upload'], ['history.html', 'Athlete history'], ['schedule.html', 'Schedule']];
+  const links = [['index.html', 'Shot analysis'], ['upload.html', 'Upload'], ['history.html', 'Athlete history'], ['schedule.html', 'Schedule']];
   const h = document.createElement('header');
   h.className = 'topnav';
-  h.innerHTML = `<div class="wrap"><a class="brand" href="index.html">SportsVision.AI</a><nav aria-label="Main">${links
-    .map(([href, t]) => `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${t}</a>`).join('')}</nav></div>`;
+  h.innerHTML = `<div class="wrap">
+    <a class="brand" href="index.html" aria-label="SportsVision LAMP home"><img src="../img/logo.png" alt="SportsVision" width="120" height="26"><span class="lamp">LAMP</span></a>
+    <nav aria-label="Main">${links.map(([href, t]) => `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${t}</a>`).join('')}</nav></div>`;
   document.body.prepend(h);
-}
-
-// Line chart of one metric across sessions (inline SVG): ink line, accent on the latest value.
-export function lineChart(points, unit) {
-  const w = 320, h = 120, p = { l: 36, r: 12, t: 12, b: 24 };
-  const vs = points.map((x) => x.v);
-  let lo = Math.min(...vs), hi = Math.max(...vs);
-  if (lo === hi) { lo -= 1; hi += 1; }
-  const X = (i) => p.l + (points.length < 2 ? (w - p.l - p.r) / 2 : (i * (w - p.l - p.r)) / (points.length - 1));
-  const Y = (v) => p.t + (h - p.t - p.b) * (1 - (v - lo) / (hi - lo));
-  const pts = points.map((x, i) => `${X(i)},${Y(x.v)}`).join(' ');
-  return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="${points.length} sessions">
-    <line x1="${p.l}" x2="${w - p.r}" y1="${Y(lo)}" y2="${Y(lo)}" stroke="#E3E1DA"/><line x1="${p.l}" x2="${w - p.r}" y1="${Y(hi)}" y2="${Y(hi)}" stroke="#E3E1DA"/>
-    <text x="${p.l - 6}" y="${Y(hi) + 4}" text-anchor="end" font-family="Geist Mono" font-size="10" fill="#7A7E85">${Math.round(hi)}</text>
-    <text x="${p.l - 6}" y="${Y(lo) + 4}" text-anchor="end" font-family="Geist Mono" font-size="10" fill="#7A7E85">${Math.round(lo)}</text>
-    <polyline points="${pts}" fill="none" stroke="#0E0F11" stroke-width="2"/>
-    ${points.map((x, i) => `<circle cx="${X(i)}" cy="${Y(x.v)}" r="${i === points.length - 1 ? 5 : 3.5}" fill="${i === points.length - 1 ? '#FF5A1F' : '#4A4E55'}"><title>${x.d}: ${x.v} ${unit}</title></circle>
-      <text x="${X(i)}" y="${h - 6}" text-anchor="middle" font-family="Geist Mono" font-size="10" fill="#7A7E85">${x.d.slice(5)}</text>`).join('')}
-  </svg>`;
+  const f = document.createElement('footer');
+  f.className = 'foot';
+  f.innerHTML = `<div class="wrap"><p>LAMP: Limitless Analytics for Mastering Performance</p><p class="label">Train Smarter . Perform Better . Win Bigger</p></div>`;
+  document.body.append(f);
+  if (!document.querySelector('link[rel=icon]')) {
+    const l = document.createElement('link'); l.rel = 'icon'; l.href = '../img/favicon.png'; document.head.append(l);
+  }
 }

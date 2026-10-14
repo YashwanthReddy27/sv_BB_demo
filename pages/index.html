@@ -6,29 +6,21 @@
   <title>SportsVision: The Ultimate Sports Platform</title>
   <link rel="stylesheet" href="../sportsvision/sportsvision.css">
   <link rel="stylesheet" href="../theme.css">
-  <style>
-    .page { min-height: 100vh; background: var(--paper); }
-    .page-inner { display: grid; gap: 40px; max-width: 1240px; margin: 0 auto; padding: 56px 24px 96px; }
-    .hero { text-align: left; padding-bottom: 8px; border-bottom: 1px solid var(--hairline); padding-bottom: 40px; }
-    .hero h1 { margin: 0; color: var(--ink); font-size: clamp(40px, 6vw, 72px); font-weight: 600; letter-spacing: -0.04em; line-height: 1.05; }
-    .hero h2 { margin: 16px 0 0; color: var(--ink-2); font-size: clamp(20px, 2.2vw, 28px); font-weight: 500; letter-spacing: -0.02em; line-height: 1.25; }
-    .hero p { margin: 18px 0 0; color: var(--accent-ink); font: 500 13px/1.4 var(--mono); text-transform: uppercase; letter-spacing: .08em; }
-    @media (max-width: 600px) { .page-inner { padding: 36px 16px 72px; gap: 32px; } }
-  </style>
 </head>
 <body>
   <div class="sv-root page">
-    <div class="page-inner">
-      <header class="hero">
-        <h1>SportsVision.AI</h1>
-        <h2>LAMP: Limitless Analytics for Mastering Performance</h2>
-        <p>Train Smarter . Perform Better . Win Bigger</p>
+    <main class="page-main" id="main">
+      <header>
+        <p class="label" id="kind">Shot analysis</p>
+        <h1 class="page-h1">Shot analysis</h1>
+        <div class="meta-row" id="meta"></div>
       </header>
 
-      <section class="sv-stack">
-        <h3 class="sv-section-title">Shot Analysis</h3>
-        <div id="shot-analysis"></div>
+      <section aria-label="Shots">
+        <div class="picker" id="picker"></div>
       </section>
+
+      <div id="view" style="display:grid;gap:32px"></div>
 
       <section class="sv-grid-2">
         <div class="sv-card">
@@ -100,23 +92,8 @@
           <p>Strength: Strength is important in basketball because it helps players to control the ball, play defense, and battle for rebounds.</p>
         </div>
       </section>
-    </div>
+    </main>
   </div>
-
-  <script type="module">
-    import { shotAnalysis } from '../sportsvision/sportsvision.js';
-    import { nav } from '../app.js';
-    nav();
-
-    const clips = '../media/';
-    const out = '../media/';
-    shotAnalysis(document.getElementById('shot-analysis'), {
-      shots: [
-        { label: 'Success 1', raw: clips + '1-success.mp4', overlay: out + '1-success-analysis.mp4', data: out + '1-success-pose.csv' },
-        { label: 'Success 2', raw: clips + '2-success.mp4', overlay: out + '2-success-analysis.mp4', data: out + '2-success-pose.csv' },
-        { label: 'Failed 1', raw: clips + '1-failed.mp4', overlay: out + '1-failed-analysis.mp4', data: out + '1-failed-pose.csv' }
-      ]
-    });
-  </script>
+  <script type="module" src="../js/shot-page.js"></script>
 </body>
 </html>

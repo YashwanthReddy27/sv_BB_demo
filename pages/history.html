@@ -8,39 +8,68 @@
 </head>
 <body>
 <main class="page-main" id="main">
-  <header>
-    <p class="label">Athlete history</p>
-    <h1 class="title" id="h-title">Past results</h1>
-  </header>
-  <form class="card" id="pick" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
-    <div class="field" style="flex:1;min-width:220px">
+  <header style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+    <div>
+      <p class="label">Athlete history</p>
+      <h1 class="page-h1" id="h-title">Athlete history</h1>
+      <p class="meta-row" id="working"></p>
+    </div>
+    <div class="field" style="min-width:240px">
       <label for="athlete">Athlete</label>
       <select class="input" id="athlete"></select>
     </div>
-  </form>
+  </header>
+  <section class="card" aria-labelledby="trend-h" id="trend-card" hidden>
+    <div class="card-head"><div><p class="label">Trend</p><h2 class="h2" id="trend-h">Top 2 joints across sessions</h2></div><div class="legend" id="trend-legend"></div></div>
+    <div id="trend"></div>
+    <p class="label" style="margin:10px 0 0">Average gap between the miss and the makes in the half-second around release, px (scaled to a 100 px torso).</p>
+  </section>
   <section class="card" aria-labelledby="list-h">
-    <h2 class="sr-only" id="list-h">Results</h2>
+    <div class="card-head"><div><p class="label">Analyses</p><h2 class="h2" id="list-h">Every session</h2></div></div>
     <div id="list"></div>
   </section>
 </main>
 <script type="module">
-  import { nav, $, esc, params, SHOTS, results, fmtDate } from '../app.js';
+  import { nav, $, esc, params, results, sessions, loadShots, fmtDate } from '../app.js';
+  import { compare, phrase } from '../js/analysis.js';
+  import { trendChart } from '../js/charts.js';
   nav();
+  const shots = await loadShots();
+  const makes = shots.filter((s) => s.result === 'make');
+  const miss = shots.find((s) => s.result === 'miss');
+  // Every upload in this demo is analysed against the same processed clips, so each session shares these rows.
+  const rows = miss ? compare(miss, makes) : [];
+  const top = rows[0] ? phrase(rows[0]) : '–';
+
   const names = [...new Set(results.all().map((r) => r.athlete.trim()))].sort((a, b) => a.localeCompare(b));
   const sel = $('#athlete');
   const current = params.get('athlete') || names[0] || '';
   sel.innerHTML = names.length ? names.map((n) => `<option${n.toLowerCase() === current.toLowerCase() ? ' selected' : ''}>${esc(n)}</option>`).join('') : '<option value="">No athletes yet</option>';
-  const render = () => {
+
+  function render() {
     const name = sel.value;
-    $('#h-title').textContent = name ? `${name}` : 'Past results';
-    const rows = name ? results.byAthlete(name).reverse() : [];
-    $('#list').innerHTML = rows.length ? `<div class="table-wrap"><table>
-      <thead><tr><th scope="col">Date</th><th scope="col">Level</th><th scope="col">Session type</th><th scope="col">Clip</th><th scope="col">Notes</th><th scope="col"><span class="sr-only">Open</span></th></tr></thead>
-      <tbody>${rows.map((r) => `<tr><td class="num">${fmtDate(r.date)}</td><td>${esc(r.level)}</td><td><span class="tag accent">${esc(r.type)}</span></td>
-        <td>${esc(SHOTS[r.shot]?.label || '')}</td><td>${r.notes ? 'Yes' : '–'}</td>
-        <td><a class="btn btn-secondary" href="results.html?id=${r.id}">View results</a></td></tr>`).join('')}</tbody></table></div>`
-      : `<div class="empty"><p style="margin:0 0 16px">No results saved yet.</p><a class="btn btn-primary" href="upload.html">Upload a session</a></div>`;
-  };
+    $('#h-title').textContent = name || 'Athlete history';
+    const list = name ? results.byAthlete(name) : [];
+    const planned = sessions.all().filter((s) => (s.athletes || []).some((a) => a.toLowerCase() === name.toLowerCase()) && s.focus);
+    const focus = planned.length ? planned[planned.length - 1].focus : list.length ? top : '';
+    $('#working').innerHTML = focus ? `<span>Working on: <strong>${esc(focus)}</strong></span>` : '';
+    $('#list').innerHTML = list.length ? `<div class="table-wrap"><table>
+      <thead><tr><th scope="col">Date</th><th scope="col">Session</th><th scope="col">Shots</th><th scope="col">Makes / misses</th><th scope="col">Top work-on item</th><th scope="col"><span class="sr-only">Open</span></th></tr></thead>
+      <tbody>${[...list].reverse().map((r) => `<tr>
+        <td class="num">${fmtDate(r.date)}</td>
+        <td><span class="tag accent">${esc(r.type)}</span> <span class="tag">${esc(r.level)}</span></td>
+        <td class="num">${shots.length}</td>
+        <td><span class="chip make">${makes.length} make${makes.length === 1 ? '' : 's'}</span> <span class="chip miss">${shots.length - makes.length} miss</span></td>
+        <td>${esc(top)}</td>
+        <td><a class="btn btn-secondary" href="index.html?id=${r.id}">View feedback</a></td></tr>`).join('')}</tbody></table></div>`
+      : `<div class="empty"><p style="margin:0 0 16px">No analyses saved yet.</p><a class="btn btn-primary" href="upload.html">Upload a session</a></div>`;
+    $('#trend-card').hidden = !list.length;
+    if (list.length) {
+      const series = rows.slice(0, 2).map((r) => ({ name: r.name, points: list.map((x) => ({ d: x.date, v: r.score })) }));
+      $('#trend').innerHTML = trendChart(series, 'px');
+      $('#trend-legend').innerHTML = series.map((s, i) => `<span><i style="background:${i ? '#4A4E55' : '#0E0F11'};height:2px"></i>${esc(s.name)}</span>`).join('');
+    }
+  }
   sel.addEventListener('change', () => { history.replaceState(null, '', `?athlete=${encodeURIComponent(sel.value)}`); render(); });
   render();
 </script>

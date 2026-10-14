@@ -26,9 +26,7 @@
         </label>
       </div>
       <div class="field span-2">
-        <label for="shot">Analysed clip</label>
-        <select class="input" id="shot"></select>
-        <p class="notice">This demo uses the clips the analysis has already processed. Pick the one that matches this session.</p>
+        <p class="notice" style="margin:0">The model isn't hosted in this demo, so every upload opens the analysis of the 3 shots the model has already processed.</p>
       </div>
       <div class="field">
         <label for="athlete">Athlete name</label>
@@ -55,16 +53,16 @@
   </form>
 </main>
 <script type="module">
-  import { nav, $, esc, json, params, SHOTS, SESSION_TYPES, results, sessions, uid } from '../app.js';
+  import { nav, $, esc, json, params, SESSION_TYPES, results, sessions, uid } from '../app.js';
   nav();
   const { levels } = await json('../levels.json');
   const linked = params.get('session') ? sessions.get(params.get('session')) : null;
   const pre = { level: params.get('level') || linked?.level, type: params.get('type') || linked?.type };
 
-  $('#shot').innerHTML = Object.entries(SHOTS).map(([k, s]) => `<option value="${k}">${esc(s.label)}</option>`).join('');
   $('#level').innerHTML = levels.map((l) => `<option${l === pre.level ? ' selected' : ''}>${esc(l)}</option>`).join('');
   $('#type').innerHTML = SESSION_TYPES.map((t, i) => `<label><input type="radio" name="type" value="${esc(t)}"${(pre.type ? t === pre.type : i === 0) ? ' checked' : ''}><span>${esc(t)}</span></label>`).join('');
   $('#date').value = linked?.date || new Date().toISOString().slice(0, 10);
+  $('#athlete').value = params.get('athlete') || linked?.athletes?.[0] || '';
   if (linked) $('#athlete').focus();
 
   const drop = $('#drop'), file = $('#file');
@@ -82,12 +80,12 @@
     if (!athlete) { $('#athlete').focus(); return; }
     const r = {
       id: uid(), created: Date.now(), athlete, date: $('#date').value, level: $('#level').value,
-      type: document.querySelector('input[name=type]:checked').value, shot: $('#shot').value,
-      fileName: file.files[0]?.name || '', notes: '', sessionId: linked?.id || '',
+      type: document.querySelector('input[name=type]:checked').value,
+      fileName: file.files[0]?.name || '', notes: {}, sessionId: linked?.id || '',
     };
     results.save(r);
     if (linked) sessions.save({ ...linked, resultId: r.id });
-    location.href = `results.html?id=${r.id}`;
+    location.href = `index.html?id=${r.id}`;
   });
 </script>
 </body>
